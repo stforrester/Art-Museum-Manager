@@ -26,8 +26,8 @@ class Art:
         CURSOR.execute(sql)
     
     @classmethod
-    def create(cls, title, value, artist, dimensions):
-        art = cls(title, value, artist, dimensions)
+    def create(cls, title, value, artist, dimensions, museum_id):
+        art = cls(title, value, artist, dimensions, museum_id)
         art.save()
         return art
 
@@ -38,7 +38,8 @@ class Art:
             title=row[1],
             value=row[2],
             artist=row[3],
-            dimensions=row[4],            
+            dimensions=row[4],
+            museum_id=row[5]            
         )
         return art
 
@@ -48,21 +49,31 @@ class Art:
             SELECT * FROM art_collection;
         """
         return[cls.instance_from_db(row) for row in CURSOR.execute(sql).fetchall()]
+    
+    @classmethod
+    def find_by_title(cls, title):
+        sql = """
+            SELECT * from art_collection WHERE title = ? LIMIT 1
+        """
+        row = CURSOR.execute(sql, (title,)).fetchone()
+        if not row:
+            return None
+        return cls.instance_from_db(row)
 
-    def __init__(self, title, value, artist, dimensions, id=None):
+    def __init__(self, title, value, artist, dimensions, museum_id, id=None):
         self.id = id # primary key
         self.title = title
         self.value = value
         self.artist = artist
         self.dimensions = dimensions
-        # self.museum_id = museum_id # foreign key
+        self.museum_id = museum_id # foreign key
     
     def save(self):
         sql = """
-            INSERT INTO art_collection (title, value, artist, dimensions)
-            VALUES (?, ?, ?, ?)
+            INSERT INTO art_collection (title, value, artist, dimensions, museum_id)
+            VALUES (?, ?, ?, ?, ?)
         """
-        CURSOR.execute(sql,(self.title, self.value, self.artist, self.dimensions))
+        CURSOR.execute(sql,(self.title, self.value, self.artist, self.dimensions, self.museum_id))
         CONN.commit()
         self.id = CURSOR.lastrowid
     
