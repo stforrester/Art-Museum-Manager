@@ -24,6 +24,30 @@ class Art:
             DROP TABLE IF EXISTS art_collection
         """
         CURSOR.execute(sql)
+    
+    @classmethod
+    def create(cls, title, value, artist, dimensions):
+        art = cls(title, value, artist, dimensions)
+        art.save()
+        return art
+
+    @classmethod
+    def instance_from_db(cls, row):
+        art = cls(
+            id=row[0],
+            title=row[1],
+            value=row[2],
+            artist=row[3],
+            dimensions=row[4],            
+        )
+        return art
+
+    @classmethod
+    def get_all(cls):
+        sql = """
+            SELECT * FROM art_collection;
+        """
+        return[cls.instance_from_db(row) for row in CURSOR.execute(sql).fetchall()]
 
     def __init__(self, title, value, artist, dimensions, id=None):
         self.id = id # primary key
