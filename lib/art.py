@@ -41,3 +41,6 @@ class Art:
         CURSOR.execute(sql,(self.title, self.value, self.artist, self.dimensions))
         CONN.commit()
         self.id = CURSOR.lastrowid
+    
+    def __repr__(self):
+        return f"<Artwork {self.id} {self.title} | {self.artist}>"
